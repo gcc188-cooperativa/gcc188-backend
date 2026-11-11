@@ -1,9 +1,13 @@
+# Release Please abre/atualiza o PR de release a cada push em master (Git Flow,
+# Design §3.4). Ao integrá-lo, este mesmo run cria a tag vX.Y.Z e a release e
+# publica a imagem no GHCR: eventos criados com GITHUB_TOKEN não disparam outros
+# workflows, por isso a publicação não fica num workflow separado em
+# `release: published` (mesma decisão do gcc188-api-contract). O PR de retorno
+# leva o aumento de versão e o changelog de volta para develop.
 name: Release
 on:
   push:
     branches: [master]
-  release:
-    types: [published]
 
 permissions:
   contents: write
@@ -12,21 +16,25 @@ permissions:
 
 jobs:
   release-please:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
     steps:
       # Git Flow (Design §3.4): o PR de release integra em `master` e o PR de
       # retorno leva o aumento de volta para `develop`. Sem `target-branch`, a
       # action usaria o branch default (`develop`) e o merge não dispararia este
       # workflow — nenhuma tag, release ou imagem seria publicada.
-      - uses: googleapis/release-please-action@v4
+      - id: rp
+        uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: master
 
   publicar-imagem:
-    if: github.event_name == 'release'
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,11 +52,11 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           BP_OCI_SOURCE: ${{ github.server_url }}/${{ github.repository }}
           BP_OCI_REVISION: ${{ github.sha }}
-          BP_OCI_VERSION: ${{ github.event.release.tag_name }}
+          BP_OCI_VERSION: ${{ needs.release-please.outputs.tag_name }}
       - name: Retorno master para develop
         run: |
           gh pr create --base develop --head master \
-            --title "chore: retorno da release ${{ github.event.release.tag_name }}" \
+            --title "chore: retorno da release ${{ needs.release-please.outputs.tag_name }}" \
             --body "Leva o aumento de versão e o changelog de volta para develop." || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
