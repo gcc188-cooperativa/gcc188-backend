@@ -1,0 +1,13 @@
+[versions]
+spring-boot = "4.0.0"          # PD12: fixar a linha 4.x estável vigente no marco M0
+dependency-management = "1.1.7"
+nimbus = "10.5"
+archunit = "1.4.1"
+
+[libraries]
+nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbus" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "dependency-management" }

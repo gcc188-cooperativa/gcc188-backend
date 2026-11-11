@@ -1,0 +1,8 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: npx --no-install commitlint --edit {1}
+pre-push:
+  commands:
+    testes-unitarios:
+      run: ./gradlew test --tests '*Test' -x jacocoTestReport

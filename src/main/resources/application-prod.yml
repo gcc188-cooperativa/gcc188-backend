@@ -1,0 +1,7 @@
+logging:
+  structured:
+    format:
+      console: logstash
+app:
+  auth:
+    cookie-secure: true
