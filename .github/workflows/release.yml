@@ -15,10 +15,15 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
+      # Git Flow (Design §3.4): o PR de release integra em `master` e o PR de
+      # retorno leva o aumento de volta para `develop`. Sem `target-branch`, a
+      # action usaria o branch default (`develop`) e o merge não dispararia este
+      # workflow — nenhuma tag, release ou imagem seria publicada.
       - uses: googleapis/release-please-action@v4
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          target-branch: master
 
   publicar-imagem:
     if: github.event_name == 'release'
