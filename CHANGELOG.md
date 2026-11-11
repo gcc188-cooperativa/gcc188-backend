@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/gcc188-cooperativa/gcc188-backend/compare/gcc188-backend-v0.2.0...gcc188-backend-v0.2.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* **ci:** publicar a imagem no mesmo run do release-please (D30) ([#135](https://github.com/gcc188-cooperativa/gcc188-backend/issues/135)) ([27e7d3f](https://github.com/gcc188-cooperativa/gcc188-backend/commit/27e7d3f289ef9ec88ee16bcb2b9b67b6f070188b))
+
 ## [0.2.0](https://github.com/gcc188-cooperativa/gcc188-backend/compare/gcc188-backend-v0.1.0...gcc188-backend-v0.2.0) (2026-11-11)
 
 
