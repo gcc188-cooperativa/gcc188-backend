@@ -1,0 +1,5 @@
+app:
+  auth:
+    cookie-secure: false
+    bcrypt-custo: 4
+    jwt-secret: chave-de-teste-com-mais-de-trinta-e-dois-bytes-0123456789
