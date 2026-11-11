@@ -1,0 +1,56 @@
+name: CI
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop]
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+jobs:
+  governanca:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Somente develop (ou o PR de release) pode ir para master
+        if: github.base_ref == 'master'
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ] && [[ "${{ github.head_ref }}" != release-please--* ]]; then
+            echo "PRs para master só podem vir de develop ou do PR de release"; exit 1
+          fi
+      - uses: wagoid/commitlint-github-action@v6
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '25' }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build, testes (Testcontainers) e relatório de cobertura
+        run: ./gradlew build
+      - name: Imagem (sem publicar)
+        run: ./gradlew bootBuildImage
+      - name: Trivy (varredura da imagem)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/gcc188-backend:${{ github.run_number }}
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+          ignore-unfixed: true
+        continue-on-error: true
+
+  codeql:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '25' }
+      - uses: github/codeql-action/init@v3
+        with: { languages: java-kotlin, build-mode: none }
+      - uses: github/codeql-action/analyze@v3
