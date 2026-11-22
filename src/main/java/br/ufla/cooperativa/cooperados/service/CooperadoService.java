@@ -1,8 +1,8 @@
-package br.ufla.cooperativa.cooperandos.service;
+package br.ufla.cooperativa.cooperados.service;
 
-import br.ufla.cooperativa.cooperandos.dto.CooperandoDtos.*;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
-import br.ufla.cooperativa.cooperandos.persistence.CooperandoRepository;
+import br.ufla.cooperativa.cooperados.dto.CooperadoDtos.*;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
+import br.ufla.cooperativa.cooperados.persistence.CooperadoRepository;
 import br.ufla.cooperativa.shared.*;
 import br.ufla.cooperativa.usuarios.persistence.Usuario;
 import br.ufla.cooperativa.usuarios.service.UsuarioService;
@@ -15,28 +15,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CooperandoService {
-    private final CooperandoRepository repo;
+public class CooperadoService {
+    private final CooperadoRepository repo;
     private final UsuarioService usuarios;
 
-    public CooperandoService(CooperandoRepository repo, UsuarioService usuarios) {
+    public CooperadoService(CooperadoRepository repo, UsuarioService usuarios) {
         this.repo = repo;
         this.usuarios = usuarios;
     }
 
-    public static CooperandoResponse paraResponse(Cooperando c) {
-        return new CooperandoResponse(c.getId(), c.getUsuarioId(), c.getMatricula(), c.getNome(), c.getCpf(),
+    public static CooperadoResponse paraResponse(Cooperado c) {
+        return new CooperadoResponse(c.getId(), c.getUsuarioId(), c.getMatricula(), c.getNome(), c.getCpf(),
                 c.getTelefone(), c.getDataIngresso(), c.isAtivo(), c.getCriadoEm(), c.getAtualizadoEm());
     }
 
-    /** RF-COO-01: cooperando e usuário MOTORISTA em uma única transação (RN14, RNF-05). */
+    /** RF-COO-01: cooperado e usuário MOTORISTA em uma única transação (RN14, RNF-05). */
     @Transactional
-    public CooperandoResponse cadastrar(CadastrarCooperandoRequest r) {
+    public CooperadoResponse cadastrar(CadastrarCooperadoRequest r) {
         validarCpf(r.cpf());
         if (repo.existsByMatricula(r.matricula())) throw new ConflitoException("Matrícula já cadastrada", "matricula");
         if (repo.existsByCpf(r.cpf())) throw new ConflitoException("CPF já cadastrado", "cpf");
         Usuario u = usuarios.criarInterno(r.nome(), r.emailEfetivo(), r.senhaEfetivo(), Papel.MOTORISTA);
-        Cooperando c = new Cooperando();
+        Cooperado c = new Cooperado();
         c.setUsuarioId(u.getId());
         c.setMatricula(r.matricula().trim());
         c.setNome(r.nome().trim());
@@ -47,25 +47,25 @@ public class CooperandoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CooperandoResponse> listar(String nome, String matricula, Boolean ativo, Pageable pg) {
-        List<Specification<Cooperando>> f = new ArrayList<>();
+    public Page<CooperadoResponse> listar(String nome, String matricula, Boolean ativo, Pageable pg) {
+        List<Specification<Cooperado>> f = new ArrayList<>();
         if (nome != null && !nome.isBlank())
             f.add((root, q, cb) -> cb.like(cb.lower(root.get("nome")), "%" + nome.trim().toLowerCase() + "%"));
         if (matricula != null && !matricula.isBlank()) f.add((root, q, cb) -> cb.equal(root.get("matricula"), matricula.trim()));
         if (ativo != null) f.add((root, q, cb) -> cb.equal(root.get("ativo"), ativo));
-        return repo.findAll(Specs.todos(f), pg).map(CooperandoService::paraResponse);
+        return repo.findAll(Specs.todos(f), pg).map(CooperadoService::paraResponse);
     }
 
     @Transactional(readOnly = true)
-    public CooperandoResponse buscar(Long id, Ator ator) {
+    public CooperadoResponse buscar(Long id, Ator ator) {
         if (ator.is(Papel.MOTORISTA) && !id.equals(ator.vinculo())) throw naoEncontrado();
         return paraResponse(exigir(id));
     }
 
     @Transactional
-    public CooperandoResponse atualizar(Long id, AtualizarCooperandoRequest r) {
+    public CooperadoResponse atualizar(Long id, AtualizarCooperadoRequest r) {
         validarCpf(r.cpf());
-        Cooperando c = exigir(id);
+        Cooperado c = exigir(id);
         if (repo.existsByMatriculaAndIdNot(r.matricula(), id)) throw new ConflitoException("Matrícula já cadastrada", "matricula");
         if (repo.existsByCpfAndIdNot(r.cpf(), id)) throw new ConflitoException("CPF já cadastrado", "cpf");
         c.setMatricula(r.matricula().trim());
@@ -77,18 +77,18 @@ public class CooperandoService {
     }
 
     @Transactional
-    public CooperandoResponse alterarSituacao(Long id, boolean ativo) {
-        Cooperando c = exigir(id);
+    public CooperadoResponse alterarSituacao(Long id, boolean ativo) {
+        Cooperado c = exigir(id);
         c.setAtivo(ativo);
         return paraResponse(repo.saveAndFlush(c));
     }
 
-    public Cooperando exigir(Long id) {
-        return repo.findById(id).orElseThrow(CooperandoService::naoEncontrado);
+    public Cooperado exigir(Long id) {
+        return repo.findById(id).orElseThrow(CooperadoService::naoEncontrado);
     }
 
     private static NaoEncontradoException naoEncontrado() {
-        return new NaoEncontradoException("Cooperando não encontrado");
+        return new NaoEncontradoException("Cooperado não encontrado");
     }
 
     private static void validarCpf(String cpf) {

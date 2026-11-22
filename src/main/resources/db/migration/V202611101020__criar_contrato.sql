@@ -1,6 +1,6 @@
 CREATE TABLE contrato (
   id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  cooperando_id     BIGINT        NOT NULL REFERENCES cooperando (id),
+  cooperado_id      BIGINT        NOT NULL REFERENCES cooperado (id),
   cliente_id        BIGINT        NOT NULL REFERENCES cliente (id),
   descricao         VARCHAR(500)  NOT NULL,
   valor_total       NUMERIC(12,2) NOT NULL CHECK (valor_total > 0),

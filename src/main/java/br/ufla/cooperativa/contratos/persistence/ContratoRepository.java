@@ -10,10 +10,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface ContratoRepository extends JpaRepository<Contrato, Long>, JpaSpecificationExecutor<Contrato> {
     @Override
-    @EntityGraph(attributePaths = {"cooperando", "cliente"})
+    @EntityGraph(attributePaths = {"cooperado", "cliente"})
     Page<Contrato> findAll(Specification<Contrato> spec, Pageable pageable);
 
     @Override
-    @EntityGraph(attributePaths = {"cooperando", "cliente"})
+    @EntityGraph(attributePaths = {"cooperado", "cliente"})
     Optional<Contrato> findOne(Specification<Contrato> spec);
 }

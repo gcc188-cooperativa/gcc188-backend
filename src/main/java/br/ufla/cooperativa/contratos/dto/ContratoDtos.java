@@ -20,7 +20,7 @@ public final class ContratoDtos {
             BigDecimal valorTaxa, BigDecimal valorLiquido, String status, LocalDate dataBaixa, LocalDate dataRepasse) {}
 
     public record ContratoResponse(
-            Long id, ParteResumo cooperando, ParteResumo cliente, String descricao, BigDecimal valorTotal,
+            Long id, ParteResumo cooperado, ParteResumo cliente, String descricao, BigDecimal valorTotal,
             Modalidade modalidade, int numParcelas, Integer diaVencimento, LocalDate dataInicio, LocalDate dataFim,
             TaxaTipo taxaTipo, BigDecimal taxaValor, StatusContrato status, String motivoReprovacao,
             Long criadoPorId, Long aprovadoPorId, Instant aprovadoEm, Long versao, Instant criadoEm,
@@ -29,7 +29,7 @@ public final class ContratoDtos {
 
     /** versao é exigida somente no PUT (concorrência otimista). */
     public record ContratoRequest(
-            @NotNull Long cooperandoId,
+            @NotNull Long cooperadoId,
             @NotNull Long clienteId,
             @NotBlank @Size(max = 500) String descricao,
             @NotNull @DecimalMin("0.01") @Digits(integer = 10, fraction = 2) BigDecimal valorTotal,

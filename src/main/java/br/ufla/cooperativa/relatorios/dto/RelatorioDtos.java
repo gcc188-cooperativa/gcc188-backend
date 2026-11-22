@@ -18,7 +18,7 @@ public final class RelatorioDtos {
     public record LinhaDespesa(Long id, CategoriaDespesa categoria, String descricao, BigDecimal valor, LocalDate dataDespesa) {}
 
     /** RF-REL-01. Totais desconsideram pagamentos CANCELADO; despesas são informativas (RN09). */
-    public record ExtratoResponse(Parte cooperando, LocalDate de, LocalDate ate, List<LinhaPagamento> pagamentos,
+    public record ExtratoResponse(Parte cooperado, LocalDate de, LocalDate ate, List<LinhaPagamento> pagamentos,
             List<LinhaDespesa> despesas, BigDecimal totalBruto, BigDecimal totalTaxa, BigDecimal totalLiquido,
             BigDecimal totalARepassar, BigDecimal totalRepassado, BigDecimal totalDespesas) {}
 
@@ -30,7 +30,7 @@ public final class RelatorioDtos {
 
     /** RF-REL-03. */
     public record InadimplenciaResponse(LocalDate referencia, long quantidadeTotal, BigDecimal valorTotal,
-            List<LinhaInadimplencia> porCliente, List<LinhaInadimplencia> porCooperando) {}
+            List<LinhaInadimplencia> porCliente, List<LinhaInadimplencia> porCooperado) {}
 
     public record Indicador(long quantidade, BigDecimal valor) {}
 

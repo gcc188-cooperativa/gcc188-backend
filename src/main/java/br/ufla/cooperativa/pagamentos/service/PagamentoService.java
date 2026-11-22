@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PagamentoService {
-    private static final List<String> VIA_COOPERANDO = List.of("contrato", "cooperando", "id");
+    private static final List<String> VIA_COOPERADO = List.of("contrato", "cooperado", "id");
     private static final List<String> VIA_CLIENTE = List.of("contrato", "cliente", "id");
 
     private final PagamentoRepository repo;
@@ -44,7 +44,7 @@ public class PagamentoService {
             Boolean emAtraso, Ator ator, Pageable pg) {
         LocalDate hoje = tempo.hoje();
         List<Specification<Pagamento>> f = new ArrayList<>();
-        f.add(EscopoDoUsuario.<Pagamento>de(ator, VIA_COOPERANDO, VIA_CLIENTE));
+        f.add(EscopoDoUsuario.<Pagamento>de(ator, VIA_COOPERADO, VIA_CLIENTE));
         if (contratoId != null) f.add((root, q, cb) -> cb.equal(root.get("contrato").get("id"), contratoId));
         if (status != null) f.add((root, q, cb) -> cb.equal(root.get("status"), status));
         if (de != null) f.add((root, q, cb) -> cb.greaterThanOrEqualTo(root.<LocalDate>get("dataVencimento"), de));
@@ -118,7 +118,7 @@ public class PagamentoService {
     private Pagamento carregar(Long id, Ator ator) {
         Specification<Pagamento> spec = Specs.todos(List.of(
                 (Specification<Pagamento>) (root, q, cb) -> cb.equal(root.get("id"), id),
-                EscopoDoUsuario.<Pagamento>de(ator, VIA_COOPERANDO, VIA_CLIENTE)));
+                EscopoDoUsuario.<Pagamento>de(ator, VIA_COOPERADO, VIA_CLIENTE)));
         return repo.findOne(spec).orElseThrow(() -> new NaoEncontradoException("Pagamento não encontrado"));
     }
 }
