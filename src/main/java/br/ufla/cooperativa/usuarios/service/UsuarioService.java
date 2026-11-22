@@ -38,12 +38,12 @@ public class UsuarioService {
     public UsuarioResponse criar(CriarUsuarioRequest r) {
         if (r.papel() == Papel.MOTORISTA || r.papel() == Papel.CLIENTE) {
             throw new RegraNegocioException("RN14", "papel",
-                    "Usuários MOTORISTA e CLIENTE são criados pelo cadastro de cooperando ou de cliente");
+                    "Usuários MOTORISTA e CLIENTE são criados pelo cadastro de cooperado ou de cliente");
         }
         return paraResponse(criarInterno(r.nome(), r.email(), r.senha(), r.papel()));
     }
 
-    /** Criação usada também pelos cadastros de cooperando e cliente (mesma transação, RN14). */
+    /** Criação usada também pelos cadastros de cooperado e cliente (mesma transação, RN14). */
     @Transactional
     public Usuario criarInterno(String nome, String email, String senha, Papel papel) {
         politica.validar(senha, "senha");
@@ -79,7 +79,7 @@ public class UsuarioService {
         boolean vinculado = u.getPapel() == Papel.MOTORISTA || u.getPapel() == Papel.CLIENTE;
         boolean paraVinculado = r.papel() == Papel.MOTORISTA || r.papel() == Papel.CLIENTE;
         if ((vinculado || paraVinculado) && r.papel() != u.getPapel()) {
-            throw new RegraNegocioException("RN14", "papel", "O papel de usuários vinculados a cooperando ou cliente não pode ser alterado");
+            throw new RegraNegocioException("RN14", "papel", "O papel de usuários vinculados a cooperado ou cliente não pode ser alterado");
         }
         String e = r.email().trim();
         if (repo.existsByEmailIgnoreCaseAndIdNot(e, id)) throw new ConflitoException("E-mail já cadastrado", "email");

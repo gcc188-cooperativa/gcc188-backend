@@ -17,23 +17,23 @@ public class RelatorioRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public List<Object[]> pagamentosDoCooperando(Long cooperandoId, LocalDate de, LocalDate ate) {
+    public List<Object[]> pagamentosDoCooperado(Long cooperadoId, LocalDate de, LocalDate ate) {
         return em.createQuery("""
                 select p.id, p.contrato.id, p.numeroParcela, p.dataVencimento, p.valorBruto, p.valorTaxa,
                        p.valorLiquido, p.status, p.dataRepasse
                 from Pagamento p
-                where p.contrato.cooperando.id = :coop and p.dataVencimento between :de and :ate
+                where p.contrato.cooperado.id = :coop and p.dataVencimento between :de and :ate
                 order by p.dataVencimento, p.id""", Object[].class)
-                .setParameter("coop", cooperandoId).setParameter("de", de).setParameter("ate", ate).getResultList();
+                .setParameter("coop", cooperadoId).setParameter("de", de).setParameter("ate", ate).getResultList();
     }
 
-    public List<Object[]> despesasDoCooperando(Long cooperandoId, LocalDate de, LocalDate ate) {
+    public List<Object[]> despesasDoCooperado(Long cooperadoId, LocalDate de, LocalDate ate) {
         return em.createQuery("""
                 select d.id, d.categoria, d.descricao, d.valor, d.dataDespesa
                 from Despesa d
-                where d.cooperando.id = :coop and d.dataDespesa between :de and :ate
+                where d.cooperado.id = :coop and d.dataDespesa between :de and :ate
                 order by d.dataDespesa, d.id""", Object[].class)
-                .setParameter("coop", cooperandoId).setParameter("de", de).setParameter("ate", ate).getResultList();
+                .setParameter("coop", cooperadoId).setParameter("de", de).setParameter("ate", ate).getResultList();
     }
 
     public BigDecimal somaPagamentos(String campoValor, String campoData, Collection<StatusPagamento> status,
@@ -60,10 +60,10 @@ public class RelatorioRepository {
                 .setParameter("st", StatusPagamento.PREVISTO).setParameter("hoje", hoje).getResultList();
     }
 
-    public List<Object[]> inadimplenciaPorCooperando(LocalDate hoje) {
+    public List<Object[]> inadimplenciaPorCooperado(LocalDate hoje) {
         return em.createQuery("""
                 select co.id, co.nome, count(p), sum(p.valorBruto)
-                from Pagamento p join p.contrato c join c.cooperando co
+                from Pagamento p join p.contrato c join c.cooperado co
                 where p.status = :st and p.dataVencimento < :hoje
                 group by co.id, co.nome order by sum(p.valorBruto) desc""", Object[].class)
                 .setParameter("st", StatusPagamento.PREVISTO).setParameter("hoje", hoje).getResultList();
@@ -73,7 +73,7 @@ public class RelatorioRepository {
     public long contarContratos(StatusContrato status, long coop, long cli) {
         return em.createQuery("""
                 select count(c) from Contrato c
-                where c.status = :st and (:coop = 0L or c.cooperando.id = :coop) and (:cli = 0L or c.cliente.id = :cli)""",
+                where c.status = :st and (:coop = 0L or c.cooperado.id = :coop) and (:cli = 0L or c.cliente.id = :cli)""",
                 Long.class).setParameter("st", status).setParameter("coop", coop).setParameter("cli", cli).getSingleResult();
     }
 
@@ -82,7 +82,7 @@ public class RelatorioRepository {
         return em.createQuery("""
                 select count(p), sum(p.valorBruto) from Pagamento p join p.contrato c
                 where p.status = :st and p.dataVencimento between :de and :ate
-                  and (:coop = 0L or c.cooperando.id = :coop) and (:cli = 0L or c.cliente.id = :cli)""", Object[].class)
+                  and (:coop = 0L or c.cooperado.id = :coop) and (:cli = 0L or c.cliente.id = :cli)""", Object[].class)
                 .setParameter("st", status).setParameter("de", de).setParameter("ate", ate)
                 .setParameter("coop", coop).setParameter("cli", cli).getSingleResult();
     }
@@ -91,7 +91,7 @@ public class RelatorioRepository {
         return em.createQuery("""
                 select p.id, c.id, p.dataVencimento, p.valorBruto from Pagamento p join p.contrato c
                 where p.status = :st and p.dataVencimento between :de and :ate
-                  and (:coop = 0L or c.cooperando.id = :coop) and (:cli = 0L or c.cliente.id = :cli)
+                  and (:coop = 0L or c.cooperado.id = :coop) and (:cli = 0L or c.cliente.id = :cli)
                 order by p.dataVencimento, p.id""", Object[].class)
                 .setParameter("st", StatusPagamento.PREVISTO).setParameter("de", de).setParameter("ate", ate)
                 .setParameter("coop", coop).setParameter("cli", cli).setMaxResults(limite).getResultList();

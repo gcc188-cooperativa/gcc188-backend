@@ -70,7 +70,7 @@ class FluxoContratoIntegrationTest {
         adm = usuarios.save(adm);
         Ator admin = new Ator(adm.getId(), Papel.ADMINISTRADOR, null);
 
-        String coop = mvc.perform(como(post("/api/v1/cooperandos"), admin).content("""
+        String coop = mvc.perform(como(post("/api/v1/cooperados"), admin).content("""
                 {"matricula":"M001","nome":"João Motorista","cpf":"52998224725","telefone":"31999999999",
                  "data_ingresso":"2026-01-01","email":"joao@coop.com","senha":"SenhaForte1234"}"""))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
@@ -84,7 +84,7 @@ class FluxoContratoIntegrationTest {
 
         Ator motorista = new Ator(coopUsuarioId, Papel.MOTORISTA, coopId);
         String body = """
-                {"cooperando_id":%d,"cliente_id":%d,"descricao":"Frete mensal","valor_total":6000.00,
+                {"cooperado_id":%d,"cliente_id":%d,"descricao":"Frete mensal","valor_total":6000.00,
                  "modalidade":"MENSAL","num_parcelas":3,"dia_vencimento":10,"data_inicio":"2026-11-10",
                  "taxa_tipo":"PERCENTUAL","taxa_valor":10}""".formatted(coopId, cliId);
         String contrato = mvc.perform(como(post("/api/v1/contratos"), motorista).content(body))

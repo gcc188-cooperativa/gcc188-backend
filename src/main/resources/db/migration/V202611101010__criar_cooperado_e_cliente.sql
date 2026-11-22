@@ -1,4 +1,4 @@
-CREATE TABLE cooperando (
+CREATE TABLE cooperado (
   id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   usuario_id    BIGINT       NOT NULL UNIQUE REFERENCES usuario (id),
   matricula     VARCHAR(20)  NOT NULL UNIQUE,

@@ -38,7 +38,7 @@ public class DespesaController {
     public PaginaResponse<DespesaResponse> listar(
             @RequestParam(name = "origem", required = false) OrigemDespesa origem,
             @RequestParam(name = "categoria", required = false) CategoriaDespesa categoria,
-            @RequestParam(name = "cooperando_id", required = false) Long cooperandoId,
+            @RequestParam(name = "cooperado_id", required = false) Long cooperadoId,
             @RequestParam(name = "data_de", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
             @RequestParam(name = "data_ate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -46,7 +46,7 @@ public class DespesaController {
             @RequestParam(name = "sort", required = false) String sort,
             @AuthenticationPrincipal Ator ator) {
         var pg = Paginacao.de(page, size, sort, ORDENAVEIS, Sort.by(Sort.Direction.DESC, "dataDespesa").and(Sort.by("id")));
-        return PaginaResponse.de(service.listar(origem, categoria, cooperandoId, de, ate, ator, pg));
+        return PaginaResponse.de(service.listar(origem, categoria, cooperadoId, de, ate, ator, pg));
     }
 
     @GetMapping("/totais")

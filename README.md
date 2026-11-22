@@ -24,7 +24,7 @@ Actuator na porta 8081 (não publicar).
 
 ## Estrutura (Design, seção 5)
 
-Pacotes por módulo, com camadas internas: `br.ufla.cooperativa.{shared,auth,usuarios,cooperandos,clientes,contratos,pagamentos,despesas,relatorios}`
+Pacotes por módulo, com camadas internas: `br.ufla.cooperativa.{shared,auth,usuarios,cooperados,clientes,contratos,pagamentos,despesas,relatorios}`
 e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio ficam na raiz do módulo.
 `web` nunca depende de `persistence` (regra A1, verificada por ArchUnit); os serviços devolvem DTOs.
 
@@ -46,7 +46,7 @@ e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio fica
    deve ser ligado quando a suíte crescer).
 4. **`cpf` e `token_hash`** são `VARCHAR` (não `CHAR`), para o `ddl-auto=validate` do Hibernate.
 5. **A4 (ArchUnit)** não aplicada: entidades de módulos diferentes se associam por JPA
-   (pagamento→contrato, despesa→cooperando/contrato), como as chaves estrangeiras exigem.
+   (pagamento→contrato, despesa→cooperado/contrato), como as chaves estrangeiras exigem.
 6. **RN03 × parcela:** a taxa só é comparada ao bruto de cada parcela ao *submeter* (e aprovar),
    pois CA-02 parte de um RASCUNHO já existente com taxa inválida.
 7. Quem elabora o contrato não o aprova (RN12): responde 422 `RN12` (ex.: administrador que criou).
