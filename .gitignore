@@ -1,7 +1,22 @@
+# Build Gradle e cache
 .gradle/
 build/
-.idea/
-*.iml
-.env
-secrets/
+
+# Dependências de tooling Node (commitlint/lefthook)
 node_modules/
+
+# IDEs e arquivos de projeto
+.idea/
+.vscode/
+*.iml
+
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+secrets/
+
+# Logs e arquivos de SO
+*.log
+.DS_Store
+Thumbs.db
