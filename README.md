@@ -36,6 +36,14 @@ e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio fica
 * Autenticação: `ACCESS_TOKEN` (JWT, 15 min), `REFRESH_TOKEN` (rotativo, 7 dias, hash SHA-256 no banco,
   reuso revoga a família), `XSRF-TOKEN` + `X-XSRF-TOKEN`. Bloqueio após 5 falhas por 15 min.
 
+## Regras de uso do Git (tarefa #21)
+
+- **Ramos:** _Git Flow_ adaptado (Design, cap. 3) — `master` recebe somente PR de `develop` (ou o PR automático de _release_); trabalho em `feat/*`, `fix/*` e `docs/*`, com PR revisado e _squash merge_. Release Please cria a tag `vX.Y.Z`.
+- **Commits:** _Conventional Commits_ `tipo(escopo): descrição (RF-xxx-NN)`; o escopo é o módulo (`auth`, `usuarios`, `cooperados`, `clientes`, `contratos`, `pagamentos`, `despesas`, `relatorios`, `shared`). Ex.: `feat(usuarios): inativar usuário (RF-USR-04)`.
+- **Pastas:** código e testes em `src/main/` e `src/test/`; migrações versionadas em `src/main/resources/db/migration/`. Documentação de requisitos/design fica em `gcc188-docs`; nada de documento foi inserido neste repositório.
+- **`.gitignore`:** ignora `.gradle/`, `build/`, `.idea/`, `*.iml`, `.env` e `secrets/`; credenciais e arquivos de configuração local não entram no Git.
+- **Verificação:** `lefthook` roda `commit-msg` (commitlint) e `pre-push` (`./gradlew test`); o CI valida PR e gera o _changelog_. O `commitlint.config.js` deve manter a lista de escopos alinhada aos módulos acima.
+
 ## Desvios e decisões a confirmar
 
 1. **Contrato (D06/D07):** o pacote Maven do repositório `gcc188-api-contract` não existe ainda;
