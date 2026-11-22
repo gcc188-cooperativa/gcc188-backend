@@ -31,7 +31,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /** Integração com PostgreSQL real (requer Docker): CA-01, CA-05 e CA-11, mais as migrações (CA-14). */
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest
 @ActiveProfiles("test")
 class FluxoContratoIntegrationTest {
