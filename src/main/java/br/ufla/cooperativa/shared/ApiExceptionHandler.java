@@ -83,7 +83,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(RegraNegocioException.class)
     ResponseEntity<ProblemDetail> regra(RegraNegocioException ex) {
-        return resposta(HttpStatus.UNPROCESSABLE_ENTITY, "Regra de negócio violada", ex.getMessage(),
+        return resposta(HttpStatus.UNPROCESSABLE_CONTENT, "Regra de negócio violada", ex.getMessage(),
                 ex.getCodigoRegra(), campo(ex.getCampo(), ex.getMessage()));
     }
 

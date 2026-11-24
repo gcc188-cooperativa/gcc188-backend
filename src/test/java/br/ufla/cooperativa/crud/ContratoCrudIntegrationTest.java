@@ -114,7 +114,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isCreated())));
         // CA-02
         mvc.perform(como(post("/api/v1/contratos/" + id + "/submissao"), mot))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN03"))
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("taxa_valor")));
     }
@@ -139,7 +139,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         mvc.perform(como(patch("/api/v1/cooperandos/" + coop.id() + "/situacao"), admin).content("{\"ativo\":false}"))
                 .andExpect(status().isOk());
         mvc.perform(como(post("/api/v1/contratos"), admin).content(json(corpoContrato(coop, cli))))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN13"))
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("cooperando_id")));
     }
@@ -149,7 +149,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         mvc.perform(como(patch("/api/v1/clientes/" + cli.id() + "/situacao"), admin).content("{\"ativo\":false}"))
                 .andExpect(status().isOk());
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(corpoContrato(coop, cli))))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN13"))
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("cliente_id")));
     }
@@ -159,7 +159,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.put("cliente_id", 999999999L);
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN01"));
     }
 
@@ -168,7 +168,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.remove("dia_vencimento");
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN05"))
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("dia_vencimento")));
     }
@@ -178,7 +178,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.put("num_parcelas", 1);
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("num_parcelas")));
     }
 
@@ -187,7 +187,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.put("modalidade", "UNICO");
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN05"));
     }
 
@@ -196,7 +196,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.put("taxa_valor", new BigDecimal("150.00"));
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN02"));
     }
 
@@ -205,7 +205,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = corpoContrato(coop, cli);
         m.put("data_fim", "2026-01-01");
         mvc.perform(como(post("/api/v1/contratos"), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("data_fim")));
     }
 
@@ -393,7 +393,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = edicao(0);
         m.put("taxa_valor", new BigDecimal("101.00"));
         mvc.perform(como(put("/api/v1/contratos/" + id), mot).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN02"));
     }
 

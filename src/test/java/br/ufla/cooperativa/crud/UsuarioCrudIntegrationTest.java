@@ -87,7 +87,7 @@ class UsuarioCrudIntegrationTest extends IntegrationTestBase {
         Map<String, Object> m = novo(emailUnico());
         m.put("senha", "curta");
         mvc.perform(como(post("/api/v1/usuarios"), admin).content(json(m)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("SENHA_FRACA"));
     }
 
@@ -97,7 +97,7 @@ class UsuarioCrudIntegrationTest extends IntegrationTestBase {
             Map<String, Object> m = novo(emailUnico());
             m.put("papel", papel);
             mvc.perform(como(post("/api/v1/usuarios"), admin).content(json(m)))
-                    .andExpect(status().isUnprocessableEntity())
+                    .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.codigo_regra").value("RN14"));
         }
     }
@@ -238,7 +238,7 @@ class UsuarioCrudIntegrationTest extends IntegrationTestBase {
         long versao = numero(atual, "$.versao");
         mvc.perform(como(put("/api/v1/usuarios/" + coop.usuarioId()), admin)
                         .content(json(atualizacao("Motorista", email, "FINANCEIRO", versao))))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN14"));
     }
 
@@ -275,7 +275,7 @@ class UsuarioCrudIntegrationTest extends IntegrationTestBase {
     @Test
     void inativar_oProprioUsuario_retorna422() throws Exception {
         mvc.perform(como(patch("/api/v1/usuarios/" + admin.id() + "/situacao"), admin).content("{\"ativo\":false}"))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("AUTO_INATIVACAO"));
     }
 
@@ -308,7 +308,7 @@ class UsuarioCrudIntegrationTest extends IntegrationTestBase {
     void redefinirSenha_senhaFraca_retorna422() throws Exception {
         long id = idDe(criar(emailUnico()));
         mvc.perform(como(post("/api/v1/usuarios/" + id + "/redefinicao-senha"), admin).content("{\"senha\":\"curta\"}"))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("SENHA_FRACA"));
     }
 }
