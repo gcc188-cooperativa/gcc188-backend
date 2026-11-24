@@ -4,9 +4,10 @@ Backend (API REST) do sistema de gestão da cooperativa de transportes, conforme
 *Levantamento de Requisitos* e o *Design*: Java 25, Spring Boot 4, Spring Data JPA/Hibernate,
 Flyway, PostgreSQL, Spring Security com JWT em cookies (Nimbus JOSE).
 
-> **Estado:** compilação verificada localmente com Java 25 + Gradle 9.1.0 (`compileJava` e
-> `compileTestJava` verdes; há nota de deprecação pontual em `ApiExceptionHandler`). Os
-> testes de integração (Testcontainers) rodam no CI, que tem Docker. Rode `./gradlew build`.
+> **Estado:** build verificado localmente com Java 25 + Gradle 9.1.0 (`compileJava` e
+> `compileTestJava` sem avisos de deprecação). Os testes de integração (Testcontainers)
+> exigem um daemon Docker ou compatível (ex.: socket da API do Podman em `DOCKER_HOST`).
+> Rode `./gradlew build`.
 
 ## Como rodar
 
@@ -51,7 +52,7 @@ e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio fica
    pois CA-02 parte de um RASCUNHO já existente com taxa inválida.
 7. Quem elabora o contrato não o aprova (RN12): responde 422 `RN12` (ex.: administrador que criou).
 8. Totais de despesas (RF-DSP-05) agregados em memória; relatórios usam JPQL com projeções.
-9. `login` é isento de CSRF; `refresh` e demais `POST` exigem `X-XSRF-TOKEN`.
+9. `login` e `refresh` são isentos de CSRF (o refresh usa cookie `SameSite=Strict`, conforme o contrato); demais `POST` exigem `X-XSRF-TOKEN`.
 10. Versão do Spring Boot fixada em `4.0.0` no catálogo (PD12): ajustar para a linha estável vigente.
 11. Não implementados: Schemathesis no CI, atualização de migrações sobre a última *tag*, k6.
 
