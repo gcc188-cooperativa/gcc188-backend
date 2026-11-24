@@ -41,7 +41,7 @@ public class ClienteService {
     public ClienteResponse cadastrar(CadastrarClienteRequest r) {
         validarDocumento(r.documento());
         if (repo.existsByDocumento(r.documento())) throw new ConflitoException("Documento já cadastrado", "documento");
-        Usuario u = usuarios.criarInterno(r.nome(), r.email(), r.senha(), Papel.CLIENTE);
+        Usuario u = usuarios.criarInterno(r.nome(), r.emailEfetivo(), r.senhaEfetivo(), Papel.CLIENTE);
         Cliente c = new Cliente();
         c.setUsuarioId(u.getId());
         c.setNome(r.nome().trim());

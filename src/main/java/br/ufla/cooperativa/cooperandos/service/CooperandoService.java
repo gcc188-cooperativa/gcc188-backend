@@ -35,7 +35,7 @@ public class CooperandoService {
         validarCpf(r.cpf());
         if (repo.existsByMatricula(r.matricula())) throw new ConflitoException("Matrícula já cadastrada", "matricula");
         if (repo.existsByCpf(r.cpf())) throw new ConflitoException("CPF já cadastrado", "cpf");
-        Usuario u = usuarios.criarInterno(r.nome(), r.email(), r.senha(), Papel.MOTORISTA);
+        Usuario u = usuarios.criarInterno(r.nome(), r.emailEfetivo(), r.senhaEfetivo(), Papel.MOTORISTA);
         Cooperando c = new Cooperando();
         c.setUsuarioId(u.getId());
         c.setMatricula(r.matricula().trim());
