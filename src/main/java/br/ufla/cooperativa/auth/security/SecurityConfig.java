@@ -33,7 +33,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(csrfRepo)
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                .ignoringRequestMatchers("/api/v1/auth/login"))
+                .ignoringRequestMatchers("/api/v1/auth/login", "/api/v1/auth/refresh"))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
