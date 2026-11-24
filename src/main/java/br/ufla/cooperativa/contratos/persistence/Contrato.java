@@ -4,7 +4,7 @@ import br.ufla.cooperativa.clientes.persistence.Cliente;
 import br.ufla.cooperativa.contratos.Modalidade;
 import br.ufla.cooperativa.contratos.StatusContrato;
 import br.ufla.cooperativa.contratos.TaxaTipo;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
 import br.ufla.cooperativa.shared.EntidadeAuditavel;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -25,8 +25,8 @@ public class Contrato extends EntidadeAuditavel {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "cooperando_id", nullable = false)
-    private Cooperando cooperando;
+    @JoinColumn(name = "cooperado_id", nullable = false)
+    private Cooperado cooperado;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cliente_id", nullable = false)

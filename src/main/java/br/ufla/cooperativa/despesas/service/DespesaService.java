@@ -2,8 +2,8 @@ package br.ufla.cooperativa.despesas.service;
 
 import br.ufla.cooperativa.contratos.persistence.Contrato;
 import br.ufla.cooperativa.contratos.persistence.ContratoRepository;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
-import br.ufla.cooperativa.cooperandos.persistence.CooperandoRepository;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
+import br.ufla.cooperativa.cooperados.persistence.CooperadoRepository;
 import br.ufla.cooperativa.despesas.CategoriaDespesa;
 import br.ufla.cooperativa.despesas.OrigemDespesa;
 import br.ufla.cooperativa.despesas.dto.DespesaDtos.*;
@@ -25,21 +25,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DespesaService {
-    private static final List<String> VIA_COOPERANDO = List.of("cooperando", "id");
+    private static final List<String> VIA_COOPERADO = List.of("cooperado", "id");
 
     private final DespesaRepository repo;
-    private final CooperandoRepository cooperandos;
+    private final CooperadoRepository cooperados;
     private final ContratoRepository contratos;
 
-    public DespesaService(DespesaRepository repo, CooperandoRepository cooperandos, ContratoRepository contratos) {
+    public DespesaService(DespesaRepository repo, CooperadoRepository cooperados, ContratoRepository contratos) {
         this.repo = repo;
-        this.cooperandos = cooperandos;
+        this.cooperados = cooperados;
         this.contratos = contratos;
     }
 
     public static DespesaResponse paraResponse(Despesa d) {
         return new DespesaResponse(d.getId(), d.getOrigem(), d.getCategoria(), d.getDescricao(), d.getValor(),
-                d.getDataDespesa(), d.getCooperando() == null ? null : d.getCooperando().getId(),
+                d.getDataDespesa(), d.getCooperado() == null ? null : d.getCooperado().getId(),
                 d.getContrato() == null ? null : d.getContrato().getId(), d.getRegistradoPorId(), d.getVersao(),
                 d.getCriadoEm(), d.getAtualizadoEm());
     }
@@ -74,9 +74,9 @@ public class DespesaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DespesaResponse> listar(OrigemDespesa origem, CategoriaDespesa categoria, Long cooperandoId,
+    public Page<DespesaResponse> listar(OrigemDespesa origem, CategoriaDespesa categoria, Long cooperadoId,
             LocalDate de, LocalDate ate, Ator ator, Pageable pg) {
-        return repo.findAll(filtros(origem, categoria, cooperandoId, de, ate, ator), pg).map(DespesaService::paraResponse);
+        return repo.findAll(filtros(origem, categoria, cooperadoId, de, ate, ator), pg).map(DespesaService::paraResponse);
     }
 
     /** RF-DSP-05: totais por categoria e período (agregação em memória sobre o conjunto filtrado). */
@@ -92,13 +92,13 @@ public class DespesaService {
         return new TotaisDespesaResponse(lista, total);
     }
 
-    private Specification<Despesa> filtros(OrigemDespesa origem, CategoriaDespesa categoria, Long cooperandoId,
+    private Specification<Despesa> filtros(OrigemDespesa origem, CategoriaDespesa categoria, Long cooperadoId,
             LocalDate de, LocalDate ate, Ator ator) {
         List<Specification<Despesa>> f = new ArrayList<>();
-        f.add(EscopoDoUsuario.<Despesa>de(ator, VIA_COOPERANDO, null));
+        f.add(EscopoDoUsuario.<Despesa>de(ator, VIA_COOPERADO, null));
         if (origem != null) f.add((root, q, cb) -> cb.equal(root.get("origem"), origem));
         if (categoria != null) f.add((root, q, cb) -> cb.equal(root.get("categoria"), categoria));
-        if (cooperandoId != null) f.add((root, q, cb) -> cb.equal(root.get("cooperando").get("id"), cooperandoId));
+        if (cooperadoId != null) f.add((root, q, cb) -> cb.equal(root.get("cooperado").get("id"), cooperadoId));
         if (de != null) f.add((root, q, cb) -> cb.greaterThanOrEqualTo(root.<LocalDate>get("dataDespesa"), de));
         if (ate != null) f.add((root, q, cb) -> cb.lessThanOrEqualTo(root.<LocalDate>get("dataDespesa"), ate));
         return Specs.todos(f);
@@ -107,37 +107,37 @@ public class DespesaService {
     private Despesa carregar(Long id, Ator ator) {
         Specification<Despesa> spec = Specs.todos(List.of(
                 (Specification<Despesa>) (root, q, cb) -> cb.equal(root.get("id"), id),
-                EscopoDoUsuario.<Despesa>de(ator, VIA_COOPERANDO, null)));
+                EscopoDoUsuario.<Despesa>de(ator, VIA_COOPERADO, null)));
         return repo.findOne(spec).orElseThrow(() -> new NaoEncontradoException("Despesa não encontrada"));
     }
 
-    /** RN08: coerência entre origem, cooperando e contrato; o motorista só lança despesas próprias (RN10). */
+    /** RN08: coerência entre origem, cooperado e contrato; o motorista só lança despesas próprias (RN10). */
     private void aplicar(Despesa d, DespesaRequest r, Ator ator) {
-        Long cooperandoId = r.cooperandoId();
+        Long cooperadoId = r.cooperadoId();
         if (ator.is(Papel.MOTORISTA)) {
-            if (r.origem() != OrigemDespesa.COOPERANDO)
-                throw new AccessDeniedException("O motorista só lança despesas de origem COOPERANDO");
-            if (cooperandoId != null && !cooperandoId.equals(ator.vinculo()))
+            if (r.origem() != OrigemDespesa.COOPERADO)
+                throw new AccessDeniedException("O motorista só lança despesas de origem COOPERADO");
+            if (cooperadoId != null && !cooperadoId.equals(ator.vinculo()))
                 throw new AccessDeniedException("O motorista só lança despesas próprias");
-            cooperandoId = ator.vinculo();
+            cooperadoId = ator.vinculo();
         }
-        Cooperando coop = null;
+        Cooperado coop = null;
         Contrato contrato = null;
         if (r.origem() == OrigemDespesa.COOPERATIVA) {
-            if (cooperandoId != null)
-                throw new RegraNegocioException("RN08", "cooperando_id", "Despesa da cooperativa não tem cooperando");
+            if (cooperadoId != null)
+                throw new RegraNegocioException("RN08", "cooperado_id", "Despesa da cooperativa não tem cooperado");
             if (r.contratoId() != null)
                 throw new RegraNegocioException("RN08", "contrato_id", "Despesa da cooperativa não tem contrato");
         } else {
-            if (cooperandoId == null)
-                throw new RegraNegocioException("RN08", "cooperando_id", "Despesa de cooperando exige o cooperando");
-            coop = cooperandos.findById(cooperandoId)
-                    .orElseThrow(() -> new RegraNegocioException("RN08", "cooperando_id", "Cooperando não encontrado"));
+            if (cooperadoId == null)
+                throw new RegraNegocioException("RN08", "cooperado_id", "Despesa de cooperado exige o cooperado");
+            coop = cooperados.findById(cooperadoId)
+                    .orElseThrow(() -> new RegraNegocioException("RN08", "cooperado_id", "Cooperado não encontrado"));
             if (r.contratoId() != null) {
                 contrato = contratos.findById(r.contratoId())
                         .orElseThrow(() -> new RegraNegocioException("RN08", "contrato_id", "Contrato não encontrado"));
-                if (!contrato.getCooperando().getId().equals(coop.getId()))
-                    throw new RegraNegocioException("RN08", "contrato_id", "O contrato deve pertencer ao cooperando");
+                if (!contrato.getCooperado().getId().equals(coop.getId()))
+                    throw new RegraNegocioException("RN08", "contrato_id", "O contrato deve pertencer ao cooperado");
             }
         }
         d.setOrigem(r.origem());
@@ -145,7 +145,7 @@ public class DespesaService {
         d.setDescricao(r.descricao().trim());
         d.setValor(r.valor());
         d.setDataDespesa(r.dataDespesa());
-        d.setCooperando(coop);
+        d.setCooperado(coop);
         d.setContrato(contrato);
     }
 }

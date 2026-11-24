@@ -18,7 +18,7 @@ public class RelatorioController {
         this.service = service;
     }
 
-    @GetMapping("/cooperandos/{id}/extrato")
+    @GetMapping("/cooperados/{id}/extrato")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','FINANCEIRO','MOTORISTA')")
     public ExtratoResponse extrato(@PathVariable("id") Long id,
             @RequestParam(name = "data_de", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,

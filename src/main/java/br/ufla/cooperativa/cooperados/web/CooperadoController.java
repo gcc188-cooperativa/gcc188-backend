@@ -1,7 +1,7 @@
-package br.ufla.cooperativa.cooperandos.web;
+package br.ufla.cooperativa.cooperados.web;
 
-import br.ufla.cooperativa.cooperandos.dto.CooperandoDtos.*;
-import br.ufla.cooperativa.cooperandos.service.CooperandoService;
+import br.ufla.cooperativa.cooperados.dto.CooperadoDtos.*;
+import br.ufla.cooperativa.cooperados.service.CooperadoService;
 import br.ufla.cooperativa.shared.*;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -13,26 +13,26 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/cooperandos")
-public class CooperandoController {
+@RequestMapping("/api/v1/cooperados")
+public class CooperadoController {
     private static final Map<String, String> ORDENAVEIS =
             Map.of("id", "id", "nome", "nome", "matricula", "matricula", "data_ingresso", "dataIngresso");
-    private final CooperandoService service;
+    private final CooperadoService service;
 
-    public CooperandoController(CooperandoService service) {
+    public CooperadoController(CooperadoService service) {
         this.service = service;
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<CooperandoResponse> cadastrar(@Valid @RequestBody CadastrarCooperandoRequest r) {
-        CooperandoResponse c = service.cadastrar(r);
-        return ResponseEntity.created(URI.create("/api/v1/cooperandos/" + c.id())).body(c);
+    public ResponseEntity<CooperadoResponse> cadastrar(@Valid @RequestBody CadastrarCooperadoRequest r) {
+        CooperadoResponse c = service.cadastrar(r);
+        return ResponseEntity.created(URI.create("/api/v1/cooperados/" + c.id())).body(c);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','FINANCEIRO')")
-    public PaginaResponse<CooperandoResponse> listar(
+    public PaginaResponse<CooperadoResponse> listar(
             @RequestParam(name = "nome", required = false) String nome,
             @RequestParam(name = "matricula", required = false) String matricula,
             @RequestParam(name = "ativo", required = false) Boolean ativo,
@@ -45,19 +45,19 @@ public class CooperandoController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR','FINANCEIRO','MOTORISTA')")
-    public CooperandoResponse buscar(@PathVariable("id") Long id, @AuthenticationPrincipal Ator ator) {
+    public CooperadoResponse buscar(@PathVariable("id") Long id, @AuthenticationPrincipal Ator ator) {
         return service.buscar(id, ator);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public CooperandoResponse atualizar(@PathVariable("id") Long id, @Valid @RequestBody AtualizarCooperandoRequest r) {
+    public CooperadoResponse atualizar(@PathVariable("id") Long id, @Valid @RequestBody AtualizarCooperadoRequest r) {
         return service.atualizar(id, r);
     }
 
     @PatchMapping("/{id}/situacao")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public CooperandoResponse situacao(@PathVariable("id") Long id, @Valid @RequestBody SituacaoRequest r) {
+    public CooperadoResponse situacao(@PathVariable("id") Long id, @Valid @RequestBody SituacaoRequest r) {
         return service.alterarSituacao(id, r.ativo());
     }
 }

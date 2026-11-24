@@ -1,8 +1,8 @@
 package br.ufla.cooperativa.relatorios.service;
 
 import br.ufla.cooperativa.contratos.StatusContrato;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
-import br.ufla.cooperativa.cooperandos.persistence.CooperandoRepository;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
+import br.ufla.cooperativa.cooperados.persistence.CooperadoRepository;
 import br.ufla.cooperativa.despesas.CategoriaDespesa;
 import br.ufla.cooperativa.despesas.OrigemDespesa;
 import br.ufla.cooperativa.pagamentos.StatusPagamento;
@@ -22,12 +22,12 @@ public class RelatorioService {
     private static final LocalDate MAX = LocalDate.of(9999, 12, 31);
 
     private final RelatorioRepository repo;
-    private final CooperandoRepository cooperandos;
+    private final CooperadoRepository cooperados;
     private final TempoNegocio tempo;
 
-    public RelatorioService(RelatorioRepository repo, CooperandoRepository cooperandos, TempoNegocio tempo) {
+    public RelatorioService(RelatorioRepository repo, CooperadoRepository cooperados, TempoNegocio tempo) {
         this.repo = repo;
-        this.cooperandos = cooperandos;
+        this.cooperados = cooperados;
         this.tempo = tempo;
     }
 
@@ -44,19 +44,19 @@ public class RelatorioService {
     }
 
     /** RF-REL-01: o motorista só vê o próprio extrato; fora do escopo responde 404 (RN10). */
-    public ExtratoResponse extrato(Long cooperandoId, LocalDate de, LocalDate ate, Ator ator) {
-        if (ator.is(Papel.MOTORISTA) && !cooperandoId.equals(ator.vinculo()))
-            throw new NaoEncontradoException("Cooperando não encontrado");
-        Cooperando coop = cooperandos.findById(cooperandoId)
-                .orElseThrow(() -> new NaoEncontradoException("Cooperando não encontrado"));
+    public ExtratoResponse extrato(Long cooperadoId, LocalDate de, LocalDate ate, Ator ator) {
+        if (ator.is(Papel.MOTORISTA) && !cooperadoId.equals(ator.vinculo()))
+            throw new NaoEncontradoException("Cooperado não encontrado");
+        Cooperado coop = cooperados.findById(cooperadoId)
+                .orElseThrow(() -> new NaoEncontradoException("Cooperado não encontrado"));
         if (de != null && ate != null && ate.isBefore(de))
             throw new RequisicaoInvalidaException("data_ate deve ser igual ou posterior a data_de");
 
-        List<LinhaPagamento> pagamentos = repo.pagamentosDoCooperando(cooperandoId, ini(de), fim(ate)).stream()
+        List<LinhaPagamento> pagamentos = repo.pagamentosDoCooperado(cooperadoId, ini(de), fim(ate)).stream()
                 .map(r -> new LinhaPagamento((Long) r[0], (Long) r[1], ((Number) r[2]).intValue(), (LocalDate) r[3],
                         (BigDecimal) r[4], (BigDecimal) r[5], (BigDecimal) r[6], (StatusPagamento) r[7], (LocalDate) r[8]))
                 .toList();
-        List<LinhaDespesa> despesas = repo.despesasDoCooperando(cooperandoId, ini(de), fim(ate)).stream()
+        List<LinhaDespesa> despesas = repo.despesasDoCooperado(cooperadoId, ini(de), fim(ate)).stream()
                 .map(r -> new LinhaDespesa((Long) r[0], (CategoriaDespesa) r[1], (String) r[2], (BigDecimal) r[3], (LocalDate) r[4]))
                 .toList();
 
@@ -90,17 +90,17 @@ public class RelatorioService {
     public InadimplenciaResponse inadimplencia() {
         LocalDate hoje = tempo.hoje();
         List<LinhaInadimplencia> porCliente = repo.inadimplenciaPorCliente(hoje).stream().map(RelatorioService::linha).toList();
-        List<LinhaInadimplencia> porCooperando = repo.inadimplenciaPorCooperando(hoje).stream().map(RelatorioService::linha).toList();
+        List<LinhaInadimplencia> porCooperado = repo.inadimplenciaPorCooperado(hoje).stream().map(RelatorioService::linha).toList();
         long qtd = porCliente.stream().mapToLong(LinhaInadimplencia::quantidade).sum();
         BigDecimal total = porCliente.stream().map(LinhaInadimplencia::valorBruto).reduce(BigDecimal.ZERO, BigDecimal::add);
-        return new InadimplenciaResponse(hoje, qtd, total, porCliente, porCooperando);
+        return new InadimplenciaResponse(hoje, qtd, total, porCliente, porCooperado);
     }
 
     private static LinhaInadimplencia linha(Object[] r) {
         return new LinhaInadimplencia((Long) r[0], (String) r[1], ((Number) r[2]).longValue(), bd(r[3]));
     }
 
-    /** RF-REL-04: indicadores restritos ao escopo do papel (motorista: seu cooperando; cliente: seu cliente). */
+    /** RF-REL-04: indicadores restritos ao escopo do papel (motorista: seu cooperado; cliente: seu cliente). */
     public PainelResponse painel(Ator ator) {
         long coop = ator.is(Papel.MOTORISTA) && ator.vinculo() != null ? ator.vinculo() : 0L;
         long cli = ator.is(Papel.CLIENTE) && ator.vinculo() != null ? ator.vinculo() : 0L;

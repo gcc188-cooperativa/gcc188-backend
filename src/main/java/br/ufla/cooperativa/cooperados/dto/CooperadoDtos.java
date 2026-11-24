@@ -1,4 +1,4 @@
-package br.ufla.cooperativa.cooperandos.dto;
+package br.ufla.cooperativa.cooperados.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
@@ -6,10 +6,10 @@ import jakarta.validation.constraints.*;
 import java.time.Instant;
 import java.time.LocalDate;
 
-public final class CooperandoDtos {
-    private CooperandoDtos() {}
+public final class CooperadoDtos {
+    private CooperadoDtos() {}
 
-    public record CooperandoResponse(Long id, Long usuarioId, String matricula, String nome, String cpf,
+    public record CooperadoResponse(Long id, Long usuarioId, String matricula, String nome, String cpf,
             String telefone, LocalDate dataIngresso, boolean ativo, Instant criadoEm, Instant atualizadoEm) {}
 
     /** Credenciais no formato do contrato OpenAPI (objeto `usuario`). */
@@ -19,7 +19,7 @@ public final class CooperandoDtos {
     /**
      * Aceita `usuario: {email, senha}` (contrato) e, por compatibilidade, `email`/`senha` na raiz.
      */
-    public record CadastrarCooperandoRequest(
+    public record CadastrarCooperadoRequest(
             @NotBlank @Size(max = 20) String matricula,
             @NotBlank @Size(max = 120) String nome,
             @NotBlank @Pattern(regexp = "\\d{11}", message = "deve conter 11 dígitos") String cpf,
@@ -46,7 +46,7 @@ public final class CooperandoDtos {
         }
     }
 
-    public record AtualizarCooperandoRequest(
+    public record AtualizarCooperadoRequest(
             @NotBlank @Size(max = 20) String matricula,
             @NotBlank @Size(max = 120) String nome,
             @NotBlank @Pattern(regexp = "\\d{11}", message = "deve conter 11 dígitos") String cpf,

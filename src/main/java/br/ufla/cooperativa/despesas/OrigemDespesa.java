@@ -1,3 +1,3 @@
 package br.ufla.cooperativa.despesas;
 
-public enum OrigemDespesa { COOPERATIVA, COOPERANDO }
+public enum OrigemDespesa { COOPERATIVA, COOPERADO }
