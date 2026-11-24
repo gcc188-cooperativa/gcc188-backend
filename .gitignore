@@ -4,3 +4,10 @@ build/
 *.iml
 .env
 secrets/
+
+# Eclipse/STS (metadados e saída gerados localmente)
+.classpath
+.factorypath
+.project
+.settings/
+bin/
