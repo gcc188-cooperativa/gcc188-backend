@@ -4,9 +4,10 @@ Backend (API REST) do sistema de gestão da cooperativa de transportes, conforme
 *Levantamento de Requisitos* e o *Design*: Java 25, Spring Boot 4, Spring Data JPA/Hibernate,
 Flyway, PostgreSQL, Spring Security com JWT em cookies (Nimbus JOSE).
 
-> **Estado:** compilação verificada localmente com Java 25 + Gradle 9.1.0 (`compileJava` e
-> `compileTestJava` verdes; há nota de deprecação pontual em `ApiExceptionHandler`). Os
-> testes de integração (Testcontainers) rodam no CI, que tem Docker. Rode `./gradlew build`.
+> **Estado:** build verificado localmente com Java 25 + Gradle 9.1.0 (`compileJava` e
+> `compileTestJava` sem avisos de deprecação). Os testes de integração (Testcontainers)
+> exigem um daemon Docker ou compatível (ex.: socket da API do Podman em `DOCKER_HOST`).
+> Rode `./gradlew build`.
 
 ## Como rodar
 
@@ -24,7 +25,7 @@ Actuator na porta 8081 (não publicar).
 
 ## Estrutura (Design, seção 5)
 
-Pacotes por módulo, com camadas internas: `br.ufla.cooperativa.{shared,auth,usuarios,cooperandos,clientes,contratos,pagamentos,despesas,relatorios}`
+Pacotes por módulo, com camadas internas: `br.ufla.cooperativa.{shared,auth,usuarios,cooperados,clientes,contratos,pagamentos,despesas,relatorios}`
 e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio ficam na raiz do módulo.
 `web` nunca depende de `persistence` (regra A1, verificada por ArchUnit); os serviços devolvem DTOs.
 
@@ -36,6 +37,19 @@ e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio fica
 * Autenticação: `ACCESS_TOKEN` (JWT, 15 min), `REFRESH_TOKEN` (rotativo, 7 dias, hash SHA-256 no banco,
   reuso revoga a família), `XSRF-TOKEN` + `X-XSRF-TOKEN`. Bloqueio após 5 falhas por 15 min.
 
+## Regras de uso do Git (tarefa #21)
+
+- **Ramos:** _Git Flow_ adaptado (Design, cap. 3) — `master` recebe somente PR de `develop` (ou o PR automático de _release_); trabalho em `feat/*`, `fix/*` e `docs/*`, com PR revisado e _squash merge_. Release Please cria a tag `vX.Y.Z`.
+- **Commits:** _Conventional Commits_ `tipo(escopo): descrição (RF-xxx-NN)`; o escopo é o módulo (`auth`, `usuarios`, `cooperados`, `clientes`, `contratos`, `pagamentos`, `despesas`, `relatorios`, `shared`, além de `ci`, `deps`, `docs`, `build`, `config`). Ex.: `feat(usuarios): inativar usuário (RF-USR-04)`. Referência sugerida na tarefa: [iuricode/padrões-de-commits](https://github.com/iuricode/padroes-de-commits); adotamos Conventional Commits em vez disso por compatibilidade com commitlint, Release Please e geração automática de changelog.
+- **Pastas:** código e testes em `src/main/` e `src/test/`; migrações versionadas em `src/main/resources/db/migration/`. Documentação de requisitos/design fica em `gcc188-docs`; nada de documento foi inserido neste repositório.
+- **`.gitignore`:** ignora artefatos gerados e arquivos locais para evitar sujeira no repositório e vazamento de segredos.
+  - `.gradle/`, `build/`: cache e saídas do Gradle, reproduzíveis pelo build.
+  - `node_modules/`: dependências do tooling Node (commitlint/lefthook), instaladas por `npm ci`.
+  - `.idea/`, `.vscode/`, `*.iml`: metadados de IDE/editor, específicos da máquina.
+  - `.env`, `.env.*` (exceto `.env.example`), `secrets/`: credenciais e configuração local sensível.
+  - `*.log`, `.DS_Store`, `Thumbs.db`: logs e arquivos de sistema operacional.
+- **Verificação:** `lefthook` roda `commit-msg` (commitlint) e `pre-push` (`./gradlew test --tests '*Test' -x jacocoTestReport`); o CI valida PR e gera o _changelog_. O `commitlint.config.js` fixa a lista de escopos alinhada aos módulos acima.
+
 ## Desvios e decisões a confirmar
 
 1. **Contrato (D06/D07):** o pacote Maven do repositório `gcc188-api-contract` não existe ainda;
@@ -46,12 +60,12 @@ e, em cada um, `dto/ service/ web/ persistence/`. Enumerações do domínio fica
    deve ser ligado quando a suíte crescer).
 4. **`cpf` e `token_hash`** são `VARCHAR` (não `CHAR`), para o `ddl-auto=validate` do Hibernate.
 5. **A4 (ArchUnit)** não aplicada: entidades de módulos diferentes se associam por JPA
-   (pagamento→contrato, despesa→cooperando/contrato), como as chaves estrangeiras exigem.
+   (pagamento→contrato, despesa→cooperado/contrato), como as chaves estrangeiras exigem.
 6. **RN03 × parcela:** a taxa só é comparada ao bruto de cada parcela ao *submeter* (e aprovar),
    pois CA-02 parte de um RASCUNHO já existente com taxa inválida.
 7. Quem elabora o contrato não o aprova (RN12): responde 422 `RN12` (ex.: administrador que criou).
 8. Totais de despesas (RF-DSP-05) agregados em memória; relatórios usam JPQL com projeções.
-9. `login` é isento de CSRF; `refresh` e demais `POST` exigem `X-XSRF-TOKEN`.
+9. `login` e `refresh` são isentos de CSRF (o refresh usa cookie `SameSite=Strict`, conforme o contrato); demais `POST` exigem `X-XSRF-TOKEN`.
 10. Versão do Spring Boot fixada em `4.0.0` no catálogo (PD12): ajustar para a linha estável vigente.
 11. Não implementados: Schemathesis no CI, atualização de migrações sobre a última *tag*, k6.
 

@@ -9,8 +9,8 @@ import br.ufla.cooperativa.contratos.dto.ContratoDtos.*;
 import br.ufla.cooperativa.contratos.persistence.Contrato;
 import br.ufla.cooperativa.contratos.persistence.ContratoRepository;
 import br.ufla.cooperativa.contratos.service.ContratoEstados.Acao;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
-import br.ufla.cooperativa.cooperandos.persistence.CooperandoRepository;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
+import br.ufla.cooperativa.cooperados.persistence.CooperadoRepository;
 import br.ufla.cooperativa.shared.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,22 +26,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ContratoService {
-    private static final List<String> VIA_COOPERANDO = List.of("cooperando", "id");
+    private static final List<String> VIA_COOPERADO = List.of("cooperado", "id");
     private static final List<String> VIA_CLIENTE = List.of("cliente", "id");
 
     private final ContratoRepository repo;
-    private final CooperandoRepository cooperandos;
+    private final CooperadoRepository cooperados;
     private final ClienteRepository clientes;
     private final ApplicationEventPublisher publisher;
     private final PendenciasFinanceiras pendencias;
     private final PagamentosDoContrato pagamentos;
     private final TempoNegocio tempo;
 
-    public ContratoService(ContratoRepository repo, CooperandoRepository cooperandos, ClienteRepository clientes,
+    public ContratoService(ContratoRepository repo, CooperadoRepository cooperados, ClienteRepository clientes,
             ApplicationEventPublisher publisher, PendenciasFinanceiras pendencias, PagamentosDoContrato pagamentos,
             TempoNegocio tempo) {
         this.repo = repo;
-        this.cooperandos = cooperandos;
+        this.cooperados = cooperados;
         this.clientes = clientes;
         this.publisher = publisher;
         this.pendencias = pendencias;
@@ -51,7 +51,7 @@ public class ContratoService {
 
     public static ContratoResponse paraResponse(Contrato c, List<ParcelaResumo> parcelas) {
         return new ContratoResponse(c.getId(),
-                new ParteResumo(c.getCooperando().getId(), c.getCooperando().getNome()),
+                new ParteResumo(c.getCooperado().getId(), c.getCooperado().getNome()),
                 new ParteResumo(c.getCliente().getId(), c.getCliente().getNome()),
                 c.getDescricao(), c.getValorTotal(), c.getModalidade(), c.getNumParcelas(), c.getDiaVencimento(),
                 c.getDataInicio(), c.getDataFim(), c.getTaxaTipo(), c.getTaxaValor(), c.getStatus(),
@@ -66,7 +66,7 @@ public class ContratoService {
     public Contrato carregar(Long id, Ator ator) {
         Specification<Contrato> spec = Specs.todos(List.of(
                 (Specification<Contrato>) (root, q, cb) -> cb.equal(root.get("id"), id),
-                EscopoDoUsuario.<Contrato>de(ator, VIA_COOPERANDO, VIA_CLIENTE)));
+                EscopoDoUsuario.<Contrato>de(ator, VIA_COOPERADO, VIA_CLIENTE)));
         return repo.findOne(spec).orElseThrow(() -> new NaoEncontradoException("Contrato não encontrado"));
     }
 
@@ -77,12 +77,12 @@ public class ContratoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ContratoResponse> listar(StatusContrato status, Long cooperandoId, Long clienteId, LocalDate de,
+    public Page<ContratoResponse> listar(StatusContrato status, Long cooperadoId, Long clienteId, LocalDate de,
             LocalDate ate, Ator ator, Pageable pg) {
         List<Specification<Contrato>> f = new ArrayList<>();
-        f.add(EscopoDoUsuario.<Contrato>de(ator, VIA_COOPERANDO, VIA_CLIENTE));
+        f.add(EscopoDoUsuario.<Contrato>de(ator, VIA_COOPERADO, VIA_CLIENTE));
         if (status != null) f.add((root, q, cb) -> cb.equal(root.get("status"), status));
-        if (cooperandoId != null) f.add((root, q, cb) -> cb.equal(root.get("cooperando").get("id"), cooperandoId));
+        if (cooperadoId != null) f.add((root, q, cb) -> cb.equal(root.get("cooperado").get("id"), cooperadoId));
         if (clienteId != null) f.add((root, q, cb) -> cb.equal(root.get("cliente").get("id"), clienteId));
         if (de != null) f.add((root, q, cb) -> cb.greaterThanOrEqualTo(root.<LocalDate>get("dataInicio"), de));
         if (ate != null) f.add((root, q, cb) -> cb.lessThanOrEqualTo(root.<LocalDate>get("dataInicio"), ate));
@@ -93,7 +93,7 @@ public class ContratoService {
 
     @Transactional
     public ContratoResponse criar(ContratoRequest r, Ator ator) {
-        garantirCooperandoDoMotorista(r.cooperandoId(), ator);
+        garantirCooperadoDoMotorista(r.cooperadoId(), ator);
         Contrato c = new Contrato();
         aplicar(c, r);
         c.setStatus(StatusContrato.RASCUNHO);
@@ -109,7 +109,7 @@ public class ContratoService {
             throw new ConflitoException("Somente contratos em RASCUNHO são editáveis (RN12)", null);
         if (r.versao() == null) throw new RequisicaoInvalidaException("O campo versao é obrigatório");
         if (!r.versao().equals(c.getVersao())) throw new ConflitoException("Versão desatualizada", "versao");
-        garantirCooperandoDoMotorista(r.cooperandoId(), ator);
+        garantirCooperadoDoMotorista(r.cooperadoId(), ator);
         aplicar(c, r);
         repo.saveAndFlush(c);
         return paraResponse(c, null);
@@ -182,18 +182,18 @@ public class ContratoService {
 
     // ---------------------------------------------------------------- regras
 
-    private void garantirCooperandoDoMotorista(Long cooperandoId, Ator ator) {
-        if (ator.is(Papel.MOTORISTA) && !cooperandoId.equals(ator.vinculo()))
+    private void garantirCooperadoDoMotorista(Long cooperadoId, Ator ator) {
+        if (ator.is(Papel.MOTORISTA) && !cooperadoId.equals(ator.vinculo()))
             throw new AccessDeniedException("O motorista só pode elaborar contratos próprios");
     }
 
     /** Validações estruturais (RN01, RN02, RN05, RN13). O limite da taxa (RN03) é verificado ao submeter. */
     private void aplicar(Contrato c, ContratoRequest r) {
-        Cooperando coop = cooperandos.findById(r.cooperandoId())
-                .orElseThrow(() -> new RegraNegocioException("RN01", "cooperando_id", "Cooperando não encontrado"));
+        Cooperado coop = cooperados.findById(r.cooperadoId())
+                .orElseThrow(() -> new RegraNegocioException("RN01", "cooperado_id", "Cooperado não encontrado"));
         Cliente cli = clientes.findById(r.clienteId())
                 .orElseThrow(() -> new RegraNegocioException("RN01", "cliente_id", "Cliente não encontrado"));
-        if (!coop.isAtivo()) throw new RegraNegocioException("RN13", "cooperando_id", "Cooperando inativo");
+        if (!coop.isAtivo()) throw new RegraNegocioException("RN13", "cooperado_id", "Cooperado inativo");
         if (!cli.isAtivo()) throw new RegraNegocioException("RN13", "cliente_id", "Cliente inativo");
         if (r.dataFim() != null && r.dataFim().isBefore(r.dataInicio()))
             throw new RegraNegocioException("DATAS", "data_fim", "data_fim deve ser igual ou posterior a data_inicio");
@@ -214,7 +214,7 @@ public class ContratoService {
                 throw new RegraNegocioException("RN05", "dia_vencimento", "Contrato MENSAL exige o dia de vencimento");
             dia = r.diaVencimento();
         }
-        c.setCooperando(coop);
+        c.setCooperado(coop);
         c.setCliente(cli);
         c.setDescricao(r.descricao().trim());
         c.setValorTotal(r.valorTotal());
@@ -229,7 +229,7 @@ public class ContratoService {
 
     /** Completude para submeter e aprovar: parcelas positivas e taxa dentro do valor bruto de cada parcela. */
     private void validarCompletude(Contrato c) {
-        if (!c.getCooperando().isAtivo()) throw new RegraNegocioException("RN13", "cooperando_id", "Cooperando inativo");
+        if (!c.getCooperado().isAtivo()) throw new RegraNegocioException("RN13", "cooperado_id", "Cooperado inativo");
         if (!c.getCliente().isAtivo()) throw new RegraNegocioException("RN13", "cliente_id", "Cliente inativo");
         for (BigDecimal bruto : Parcelamento.dividir(c.getValorTotal(), c.getNumParcelas())) {
             if (bruto.signum() <= 0)

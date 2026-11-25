@@ -2,7 +2,7 @@
   "name": "gcc188-backend-tooling",
   "private": true,
   "description": "Ferramentas de commit (commitlint e lefthook); o build em si é Gradle.",
-  "scripts": { "prepare": "lefthook install || true" },
+  "scripts": { "prepare": "lefthook install" },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",

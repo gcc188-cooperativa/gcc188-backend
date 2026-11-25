@@ -1,7 +1,7 @@
 package br.ufla.cooperativa.despesas.persistence;
 
 import br.ufla.cooperativa.contratos.persistence.Contrato;
-import br.ufla.cooperativa.cooperandos.persistence.Cooperando;
+import br.ufla.cooperativa.cooperados.persistence.Cooperado;
 import br.ufla.cooperativa.despesas.CategoriaDespesa;
 import br.ufla.cooperativa.despesas.OrigemDespesa;
 import br.ufla.cooperativa.shared.EntidadeAuditavel;
@@ -38,8 +38,8 @@ public class Despesa extends EntidadeAuditavel {
     private LocalDate dataDespesa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cooperando_id")
-    private Cooperando cooperando;
+    @JoinColumn(name = "cooperado_id")
+    private Cooperado cooperado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contrato_id")

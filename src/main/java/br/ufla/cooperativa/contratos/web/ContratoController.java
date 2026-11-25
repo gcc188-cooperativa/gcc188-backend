@@ -36,7 +36,7 @@ public class ContratoController {
     @GetMapping
     public PaginaResponse<ContratoResponse> listar(
             @RequestParam(name = "status", required = false) StatusContrato status,
-            @RequestParam(name = "cooperando_id", required = false) Long cooperandoId,
+            @RequestParam(name = "cooperado_id", required = false) Long cooperadoId,
             @RequestParam(name = "cliente_id", required = false) Long clienteId,
             @RequestParam(name = "data_inicio_de", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
             @RequestParam(name = "data_inicio_ate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
@@ -45,7 +45,7 @@ public class ContratoController {
             @RequestParam(name = "sort", required = false) String sort,
             @AuthenticationPrincipal Ator ator) {
         var pg = Paginacao.de(page, size, sort, ORDENAVEIS, Sort.by(Sort.Direction.DESC, "id"));
-        return PaginaResponse.de(service.listar(status, cooperandoId, clienteId, de, ate, ator, pg));
+        return PaginaResponse.de(service.listar(status, cooperadoId, clienteId, de, ate, ator, pg));
     }
 
     @GetMapping("/{id}")
