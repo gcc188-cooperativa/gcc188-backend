@@ -129,7 +129,7 @@ public abstract class IntegrationTestBase {
     }
 
     protected Coop novoCooperando(Ator admin) throws Exception {
-        String corpo = corpo(mvc.perform(como(post("/api/v1/cooperandos"), admin).content(json(Map.of(
+        String corpo = corpo(mvc.perform(como(post("/api/v1/cooperados"), admin).content(json(Map.of(
                 "matricula", "M" + UUID.randomUUID().toString().substring(0, 8),
                 "nome", "Motorista Teste",
                 "cpf", cpfValido(),

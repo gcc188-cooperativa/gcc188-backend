@@ -136,7 +136,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
 
     @Test
     void criar_cooperandoInativo_retorna422RN13() throws Exception {
-        mvc.perform(como(patch("/api/v1/cooperandos/" + coop.id() + "/situacao"), admin).content("{\"ativo\":false}"))
+        mvc.perform(como(patch("/api/v1/cooperados/" + coop.id() + "/situacao"), admin).content("{\"ativo\":false}"))
                 .andExpect(status().isOk());
         mvc.perform(como(post("/api/v1/contratos"), admin).content(json(corpoContrato(coop, cli))))
                 .andExpect(status().isUnprocessableContent())
