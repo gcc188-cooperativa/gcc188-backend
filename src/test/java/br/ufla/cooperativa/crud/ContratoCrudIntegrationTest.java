@@ -23,7 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * CRUD que relaciona quatro tabelas (contrato, cooperando, cliente e pagamento; RF-CTR-01, 02, 09 e 10):
+ * CRUD que relaciona quatro tabelas (contrato, cooperado, cliente e pagamento; RF-CTR-01, 02, 09 e 10):
  * diagramas de sequência 5 a 8 do Design, com os fluxos alternativos do quadro de cobertura.
  */
 class ContratoCrudIntegrationTest extends IntegrationTestBase {
@@ -46,7 +46,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
     /** Contrato válido: MENSAL, 3 parcelas de 2000,00, taxa de 10% (CA-01). */
     private Map<String, Object> corpoContrato(Coop c, Cli cl) {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("cooperando_id", c.id());
+        m.put("cooperado_id", c.id());
         m.put("cliente_id", cl.id());
         m.put("descricao", "Frete mensal de insumos");
         m.put("valor_total", new BigDecimal("6000.00"));
@@ -76,8 +76,8 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", matchesPattern("/api/v1/contratos/\\d+")))
                 .andExpect(jsonPath("$.status").value("RASCUNHO"))
-                .andExpect(jsonPath("$.cooperando.id").value(coop.id()))
-                .andExpect(jsonPath("$.cooperando.nome").value("Motorista Teste"))
+                .andExpect(jsonPath("$.cooperado.id").value(coop.id()))
+                .andExpect(jsonPath("$.cooperado.nome").value("Motorista Teste"))
                 .andExpect(jsonPath("$.cliente.id").value(cli.id()))
                 .andExpect(jsonPath("$.valor_total").value(6000.0))
                 .andExpect(jsonPath("$.criado_por_id").value(mot.id()))
@@ -135,13 +135,13 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void criar_cooperandoInativo_retorna422RN13() throws Exception {
+    void criar_cooperadoInativo_retorna422RN13() throws Exception {
         mvc.perform(como(patch("/api/v1/cooperados/" + coop.id() + "/situacao"), admin).content("{\"ativo\":false}"))
                 .andExpect(status().isOk());
         mvc.perform(como(post("/api/v1/contratos"), admin).content(json(corpoContrato(coop, cli))))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.codigo_regra").value("RN13"))
-                .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("cooperando_id")));
+                .andExpect(jsonPath("$.campos_invalidos[*].campo", hasItem("cooperado_id")));
     }
 
     @Test
@@ -230,7 +230,7 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         mvc.perform(como(get("/api/v1/contratos/" + id), mot))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.cooperando.nome").value("Motorista Teste"))
+                .andExpect(jsonPath("$.cooperado.nome").value("Motorista Teste"))
                 .andExpect(jsonPath("$.cliente.nome").value("Cliente Teste Ltda"))
                 .andExpect(jsonPath("$.pagamentos", hasSize(0)));
     }
@@ -307,22 +307,22 @@ class ContratoCrudIntegrationTest extends IntegrationTestBase {
         criarRascunho(mot);
         criarRascunho(mot);
         submeter(a, mot);
-        mvc.perform(como(get("/api/v1/contratos?cooperando_id=" + coop.id() + "&status=RASCUNHO&size=1&page=0"), admin))
+        mvc.perform(como(get("/api/v1/contratos?cooperado_id=" + coop.id() + "&status=RASCUNHO&size=1&page=0"), admin))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.total_elements").value(2))
                 .andExpect(jsonPath("$.total_pages").value(2))
                 .andExpect(jsonPath("$.content[0].status").value("RASCUNHO"));
-        mvc.perform(como(get("/api/v1/contratos?cooperando_id=" + coop.id() + "&status=PENDENTE_APROVACAO"), admin))
+        mvc.perform(como(get("/api/v1/contratos?cooperado_id=" + coop.id() + "&status=PENDENTE_APROVACAO"), admin))
                 .andExpect(jsonPath("$.total_elements").value(1));
     }
 
     @Test
     void listar_filtraPorPeriodoDeInicio() throws Exception {
         criarRascunho(mot); // início em 2026-11-10
-        mvc.perform(como(get("/api/v1/contratos?cooperando_id=" + coop.id() + "&data_inicio_de=2026-11-01&data_inicio_ate=2026-11-30"), admin))
+        mvc.perform(como(get("/api/v1/contratos?cooperado_id=" + coop.id() + "&data_inicio_de=2026-11-01&data_inicio_ate=2026-11-30"), admin))
                 .andExpect(jsonPath("$.total_elements").value(1));
-        mvc.perform(como(get("/api/v1/contratos?cooperando_id=" + coop.id() + "&data_inicio_de=2027-01-01"), admin))
+        mvc.perform(como(get("/api/v1/contratos?cooperado_id=" + coop.id() + "&data_inicio_de=2027-01-01"), admin))
                 .andExpect(jsonPath("$.total_elements").value(0));
     }
 
