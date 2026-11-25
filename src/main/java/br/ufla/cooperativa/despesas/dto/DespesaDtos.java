@@ -12,7 +12,7 @@ public final class DespesaDtos {
     private DespesaDtos() {}
 
     public record DespesaResponse(Long id, OrigemDespesa origem, CategoriaDespesa categoria, String descricao,
-            BigDecimal valor, LocalDate dataDespesa, Long cooperandoId, Long contratoId, Long registradoPorId,
+            BigDecimal valor, LocalDate dataDespesa, Long cooperadoId, Long contratoId, Long registradoPorId,
             Long versao, Instant criadoEm, Instant atualizadoEm) {}
 
     /** versao é exigida somente no PUT. */
@@ -22,7 +22,7 @@ public final class DespesaDtos {
             @NotBlank @Size(max = 300) String descricao,
             @NotNull @DecimalMin("0.01") @Digits(integer = 10, fraction = 2) BigDecimal valor,
             @NotNull LocalDate dataDespesa,
-            Long cooperandoId,
+            Long cooperadoId,
             Long contratoId,
             Long versao) {}
 

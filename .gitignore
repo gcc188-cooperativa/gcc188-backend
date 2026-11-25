@@ -1,6 +1,29 @@
+# Build Gradle e cache
 .gradle/
 build/
+
+# Eclipse/STS (metadados e saída gerados localmente)
+.classpath
+.factorypath
+.project
+.settings/
+bin/
+
+# Dependências de tooling Node (commitlint/lefthook)
+node_modules/
+
+# IDEs e arquivos de projeto
 .idea/
+.vscode/
 *.iml
+
+# Segredos e configuração local
 .env
+.env.*
+!.env.example
 secrets/
+
+# Logs e arquivos de SO
+*.log
+.DS_Store
+Thumbs.db

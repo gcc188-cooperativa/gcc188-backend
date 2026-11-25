@@ -1,4 +1,4 @@
-package br.ufla.cooperativa.cooperandos.persistence;
+package br.ufla.cooperativa.cooperados.persistence;
 
 import br.ufla.cooperativa.shared.EntidadeAuditavel;
 import jakarta.persistence.*;
@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cooperando")
+@Table(name = "cooperado")
 @Getter
 @Setter
-public class Cooperando extends EntidadeAuditavel {
+public class Cooperado extends EntidadeAuditavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
