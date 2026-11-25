@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/gcc188-cooperativa/gcc188-backend/compare/gcc188-backend-v0.2.1...gcc188-backend-v0.3.0) (2026-11-25)
+
+
+### Bug Fixes
+
+* **api:** aceitar credenciais aninhadas do contrato ([aadd6f4](https://github.com/gcc188-cooperativa/gcc188-backend/commit/aadd6f4))
+* **auth:** isentar refresh de csrf conforme o contrato ([b8f9598](https://github.com/gcc188-cooperativa/gcc188-backend/commit/b8f9598))
+* **auth:** manter cookie CSRF entre requisições autenticadas ([8c767e5](https://github.com/gcc188-cooperativa/gcc188-backend/commit/8c767e5))
+* **contratos:** alinha testes de integração ao contrato renomeado ([#142](https://github.com/gcc188-cooperativa/gcc188-backend/issues/142)) ([7fdeb11](https://github.com/gcc188-cooperativa/gcc188-backend/commit/7fdeb11))
+* **shared:** ajusta rotas de integração para cooperados ([#142](https://github.com/gcc188-cooperativa/gcc188-backend/issues/142)) ([baf411f](https://github.com/gcc188-cooperativa/gcc188-backend/commit/baf411f))
+* **test(auth):** estabiliza teste de integração do cookie CSRF ([137107a](https://github.com/gcc188-cooperativa/gcc188-backend/commit/137107a))
+
+
+### Other Changes
+
+* **cooperados:** renomear cooperando para cooperado no backend ([5333f50](https://github.com/gcc188-cooperativa/gcc188-backend/commit/5333f50))
+* **build(docker):** adicionar imagem local de desenvolvimento e dockerignore ([92c94e0](https://github.com/gcc188-cooperativa/gcc188-backend/commit/92c94e0))
+* **ci:** exigir lefthook no script prepare (tarefa #21) ([310b197](https://github.com/gcc188-cooperativa/gcc188-backend/commit/310b197))
+
 ## [0.2.1](https://github.com/gcc188-cooperativa/gcc188-backend/compare/gcc188-backend-v0.2.0...gcc188-backend-v0.2.1) (2026-11-11)
 
 
